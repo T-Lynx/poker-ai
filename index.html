@@ -10,6 +10,9 @@
                 --card: #fff;
                 --accent: #4f8ef7;
                 --muted: #c8d1e7;
+                --success: #10b981;
+                --danger: #ef4444;
+                --warning: #f59e0b;
             }
             body {
                 font-family:
@@ -20,10 +23,12 @@
                 color: var(--muted);
                 background: linear-gradient(180deg, #071026, #071a2e);
                 padding: 16px;
+                min-height: 100vh;
             }
             h1 {
                 color: var(--card);
                 margin: 0 0 8px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             }
             .top {
                 display: flex;
@@ -31,154 +36,303 @@
                 align-items: center;
                 margin-bottom: 12px;
                 flex-wrap: wrap;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 12px;
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
             }
             .controls {
                 display: flex;
                 gap: 8px;
                 align-items: center;
+                flex-wrap: wrap;
             }
             button {
                 background: var(--accent);
                 border: none;
                 color: white;
-                padding: 8px 12px;
+                padding: 10px 16px;
                 border-radius: 8px;
                 cursor: pointer;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 8px rgba(79, 142, 247, 0.3);
+            }
+            button:hover {
+                background: #3b7ce0;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(79, 142, 247, 0.4);
+            }
+            button:active {
+                transform: translateY(0);
             }
             button.secondary {
                 background: transparent;
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: none;
+            }
+            button.secondary:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+            select,
+            input {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: var(--muted);
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+            select:focus,
+            input:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
             }
             .table {
                 display: grid;
                 grid-template-columns: 1fr 2fr 1fr;
-                gap: 12px;
+                gap: 16px;
                 align-items: start;
             }
+            @media (max-width: 768px) {
+                .table {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+            }
             .panel {
-                background: rgba(255, 255, 255, 0.03);
-                padding: 12px;
-                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 16px;
+                border-radius: 12px;
                 min-height: 120px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .panel-title {
+                font-weight: 600;
+                color: var(--card);
+                margin-bottom: 12px;
+                font-size: 16px;
             }
             .players {
                 display: flex;
-                gap: 8px;
+                gap: 12px;
                 flex-wrap: wrap;
             }
             .player {
-                background: rgba(255, 255, 255, 0.02);
-                padding: 8px;
-                border-radius: 8px;
-                min-width: 180px;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 12px;
+                border-radius: 10px;
+                min-width: 200px;
+                border: 2px solid transparent;
+                transition: all 0.3s ease;
+            }
+            .player.active {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
+                background: rgba(79, 142, 247, 0.1);
+            }
+            .player.folded {
+                opacity: 0.6;
+                background: rgba(239, 68, 68, 0.1);
+                border-color: rgba(239, 68, 68, 0.3);
+            }
+            .player-name {
+                font-weight: 600;
+                color: var(--card);
+                margin-bottom: 8px;
+            }
+            .player-stats {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 14px;
             }
             .hand {
                 display: flex;
-                gap: 6px;
-                margin-top: 8px;
+                gap: 8px;
+                margin-top: 12px;
                 flex-wrap: wrap;
+                justify-content: center;
             }
             .card {
-                width: 56px;
-                height: 80px;
-                border-radius: 6px;
-                background: white;
-                color: black;
+                width: 84px; /* 1.5x of original 56px */
+                height: 120px; /* 1.5x of original 80px */
+                border-radius: 8px;
+                background: linear-gradient(135deg, #ffffff, #f8fafc);
+                color: #1e293b;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-weight: 700;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: 2px solid rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(
+                    135deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2)
+                );
+                pointer-events: none;
+            }
+            .card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             }
             .card.hidden {
-                background: linear-gradient(135deg, #334155, #0f1724);
+                background: linear-gradient(135deg, #334155, #1e293b);
                 color: transparent;
+                cursor: default;
+            }
+            .card.hidden::after {
+                content: "🂠";
+                position: absolute;
+                color: #64748b;
+                font-size: 24px;
+            }
+            .card.selected {
+                outline: 3px solid var(--warning);
+                transform: translateY(-8px);
+                box-shadow: 0 8px 16px rgba(245, 158, 11, 0.4);
+            }
+            .card.red {
+                color: #dc2626;
             }
             .actions {
-                margin-top: 8px;
+                margin-top: 12px;
                 display: flex;
                 gap: 8px;
                 flex-wrap: wrap;
+                justify-content: center;
             }
             .status {
                 font-size: 14px;
                 color: var(--muted);
                 margin-top: 8px;
+                text-align: center;
             }
             .pot {
                 font-weight: 700;
                 color: var(--card);
+                font-size: 18px;
             }
             .center-area {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 8px;
+                gap: 12px;
+                text-align: center;
             }
             .table-cards {
                 display: flex;
                 gap: 8px;
                 align-items: center;
+                justify-content: center;
             }
             .chip {
-                background: #ffd166;
-                color: #2b2b2b;
-                padding: 4px 8px;
+                background: linear-gradient(135deg, #ffd166, #f59e0b);
+                color: #1f2937;
+                padding: 6px 12px;
                 border-radius: 999px;
                 font-weight: 700;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                font-size: 14px;
             }
-            .selected {
-                outline: 3px solid rgba(79, 142, 247, 0.2);
+            .bet-info {
+                background: rgba(79, 142, 247, 0.1);
+                border: 1px solid rgba(79, 142, 247, 0.3);
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 14px;
+                margin: 8px 0;
+                text-align: center;
+            }
+            .hand-strength {
+                font-size: 12px;
+                color: var(--success);
+                font-weight: 500;
+                margin-top: 4px;
             }
             input[type="number"] {
                 width: 80px;
-                padding: 6px;
+                padding: 8px;
                 border-radius: 6px;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.1);
                 color: var(--muted);
             }
             footer {
-                margin-top: 12px;
+                margin-top: 20px;
                 color: rgba(255, 255, 255, 0.5);
                 font-size: 13px;
+                text-align: center;
+                padding: 12px;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 8px;
+            }
+            .winner-highlight {
+                animation: winnerGlow 2s ease-in-out infinite alternate;
+            }
+            @keyframes winnerGlow {
+                from {
+                    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+                }
+                to {
+                    box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+                }
             }
         </style>
     </head>
     <body>
-        <h1>5-Card Poker — Offline (5-card draw)</h1>
+        <h1>🃏 5-Card Poker — Offline (5-card draw)</h1>
         <div class="top">
             <div class="controls">
-                <label
-                    >Chế độ:
+                <label>
+                    Chế độ:
                     <select id="mode">
                         <option value="solo">Solo (1 người vs bots)</option>
                         <option value="local">Local (pass-and-play)</option>
                     </select>
                 </label>
-                <label
-                    >Người chơi:
+                <label>
+                    Người chơi:
                     <select id="numPlayers">
                         <option>2</option>
                         <option>3</option>
                         <option selected>4</option>
                     </select>
                 </label>
-                <button id="newGame">Bắt đầu ván mới</button>
-                <button id="deal" class="secondary">Chia bài</button>
+                <button id="newGame">🎮 Bắt đầu ván mới</button>
+                <button id="deal" class="secondary">🃏 Chia bài</button>
             </div>
             <div style="margin-left: auto">
-                <span class="chip">Pot: <span id="pot">0</span></span>
+                <span class="chip">💰 Pot: <span id="pot">0</span></span>
             </div>
         </div>
 
         <div class="table">
             <div class="panel">
-                <div><strong>Người chơi</strong></div>
+                <div class="panel-title">👥 Người chơi</div>
                 <div id="players" class="players"></div>
             </div>
 
             <div class="panel center-area">
-                <div><strong>Trung tâm</strong></div>
+                <div class="panel-title">🎯 Trung tâm</div>
                 <div class="status">
                     Trạng thái: <span id="status">Chưa bắt đầu</span>
                 </div>
@@ -187,16 +341,13 @@
             </div>
 
             <div class="panel">
-                <div><strong>Hành động</strong></div>
+                <div class="panel-title">⚡ Hành động</div>
                 <div id="actionsArea" class="actions"></div>
                 <div class="status" id="infoArea"></div>
             </div>
         </div>
 
-        <footer>
-            Demo: 5-card draw — offline — simple AI. Muốn tính năng mở rộng
-            (chat, animation, betting nâng cao...), báo mình nhé.
-        </footer>
+        <footer>🎲 Poker: 5-card draw — offline — develop with AI.</footer>
 
         <script>
             /* ====== GAME CORE ====== */
@@ -224,6 +375,7 @@
                         d.push({ suit: s, rank: rk.r, value: rk.v });
                 return d;
             }
+
             function shuffle(deck) {
                 for (let i = deck.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -234,12 +386,11 @@
 
             /* ====== Hand evaluator (5-card poker) ====== */
             function evaluateHand(cards) {
-                // cards: array of {suit,rank,value}
                 const vals = cards.map((c) => c.value).sort((a, b) => a - b);
                 const suits = cards.map((c) => c.suit);
                 const counts = {};
                 for (const v of vals) counts[v] = (counts[v] || 0) + 1;
-                // sort values for tiebreakers descending unique
+
                 const freqPairs = Object.entries(counts).map(([v, c]) => ({
                     v: +v,
                     c,
@@ -247,24 +398,19 @@
                 freqPairs.sort((a, b) => b.c - a.c || b.v - a.v);
 
                 const isFlush = suits.every((s) => s === suits[0]);
-                // detect straight (including wheel A-2-3-4-5)
                 let isStraight = false;
                 const uniqVals = [...new Set(vals)];
                 if (uniqVals.length === 5) {
                     const max = uniqVals[4],
                         min = uniqVals[0];
                     if (max - min === 4) isStraight = true;
-                    else {
-                        // check wheel
-                        if (
-                            JSON.stringify(uniqVals) ===
-                            JSON.stringify([2, 3, 4, 5, 14])
-                        )
-                            isStraight = true;
-                    }
+                    else if (
+                        JSON.stringify(uniqVals) ===
+                        JSON.stringify([2, 3, 4, 5, 14])
+                    )
+                        isStraight = true;
                 }
 
-                // ranks precedence: 8 SF,7 Four,6 Full,5 Flush,4 Straight,3 Trips,2 TwoPair,1 OnePair,0 HighCard
                 if (isStraight && isFlush)
                     return {
                         rank: 8,
@@ -343,7 +489,6 @@
                         name: "One Pair",
                     };
                 }
-                // high card
                 return {
                     rank: 0,
                     tiebreak: vals.slice().sort((a, b) => b - a),
@@ -365,14 +510,265 @@
                 return 0;
             }
 
+            /* ====== IMPROVED BOT AI ====== */
+            function calculateHandStrength(hand) {
+                const eval = evaluateHand(hand);
+                // Return strength score 0-100
+                const baseStrength = {
+                    8: 95, // Straight Flush
+                    7: 90, // Four of a Kind
+                    6: 85, // Full House
+                    5: 75, // Flush
+                    4: 70, // Straight
+                    3: 60, // Three of a Kind
+                    2: 45, // Two Pair
+                    1: 25, // One Pair
+                    0: 10, // High Card
+                };
+
+                let strength = baseStrength[eval.rank] || 10;
+
+                // Adjust based on high cards for weak hands
+                if (eval.rank <= 1) {
+                    const highCard = Math.max(...hand.map((c) => c.value));
+                    if (highCard >= 12) strength += 5; // Face cards
+                    if (highCard === 14) strength += 5; // Ace
+                }
+
+                // Adjust pair strength
+                if (eval.rank === 1) {
+                    const pairValue = eval.tiebreak[0];
+                    if (pairValue >= 11) strength += 10; // High pairs
+                    if (pairValue >= 13) strength += 5; // Very high pairs
+                }
+
+                return Math.min(100, strength);
+            }
+
+            function calculatePotOdds(callAmount, potSize) {
+                if (callAmount === 0) return Infinity;
+                return potSize / callAmount;
+            }
+
+            function shouldBluff(position, handStrength, potSize) {
+                // More aggressive bluffing in late position with reasonable pot
+                if (position === "late" && handStrength < 30 && potSize > 50) {
+                    return Math.random() < 0.15; // 15% chance to bluff
+                }
+                if (position === "early" && handStrength < 20) {
+                    return Math.random() < 0.05; // 5% chance to bluff early
+                }
+                return false;
+            }
+
+            function getBotDecision(bot, gameState) {
+                const handStrength = calculateHandStrength(bot.hand);
+                const callAmount = Math.max(
+                    0,
+                    gameState.currentBet - bot.betThisRound,
+                );
+                const potOdds = calculatePotOdds(callAmount, gameState.pot);
+                const chipRatio = bot.chips / 500; // Starting chips ratio
+
+                // Determine position (early/middle/late)
+                const totalPlayers = gameState.players.filter(
+                    (p) => !p.folded && p.chips > 0,
+                ).length;
+                const position =
+                    gameState.currentPlayerIdx < totalPlayers / 3
+                        ? "early"
+                        : gameState.currentPlayerIdx > (2 * totalPlayers) / 3
+                          ? "late"
+                          : "middle";
+
+                // Personality traits based on bot ID
+                const personality = getBotPersonality(bot.id);
+
+                let decision = { action: "fold", amount: 0 };
+
+                // Apply personality modifiers
+                let adjustedStrength = handStrength;
+                adjustedStrength += personality.aggression * 10;
+                adjustedStrength += personality.bluffiness * 5;
+
+                if (callAmount === 0) {
+                    // Free to check
+                    if (
+                        adjustedStrength > 40 ||
+                        shouldBluff(position, handStrength, gameState.pot)
+                    ) {
+                        // Consider betting
+                        if (
+                            adjustedStrength > 60 &&
+                            Math.random() < personality.aggression
+                        ) {
+                            decision = {
+                                action: "raise",
+                                amount: gameState.minBet,
+                            };
+                        } else {
+                            decision = { action: "check", amount: 0 };
+                        }
+                    } else {
+                        decision = { action: "check", amount: 0 };
+                    }
+                } else {
+                    // Need to call or fold
+                    const callThreshold =
+                        30 + personality.tightness * 20 - chipRatio * 10;
+
+                    if (
+                        adjustedStrength > callThreshold + 20 &&
+                        chipRatio > 0.3
+                    ) {
+                        // Strong hand, consider raising
+                        if (
+                            Math.random() < personality.aggression &&
+                            adjustedStrength > 70
+                        ) {
+                            decision = {
+                                action: "raise",
+                                amount: Math.min(
+                                    bot.chips,
+                                    callAmount + gameState.minBet,
+                                ),
+                            };
+                        } else {
+                            decision = {
+                                action: "call",
+                                amount: Math.min(callAmount, bot.chips),
+                            };
+                        }
+                    } else if (
+                        adjustedStrength > callThreshold ||
+                        potOdds > 3
+                    ) {
+                        // Marginal hand but good pot odds
+                        decision = {
+                            action: "call",
+                            amount: Math.min(callAmount, bot.chips),
+                        };
+                    } else if (
+                        shouldBluff(position, handStrength, gameState.pot) &&
+                        chipRatio > 0.5
+                    ) {
+                        // Bluff attempt
+                        decision = {
+                            action: "raise",
+                            amount: Math.min(
+                                bot.chips,
+                                callAmount + gameState.minBet,
+                            ),
+                        };
+                    } else {
+                        decision = { action: "fold", amount: 0 };
+                    }
+                }
+
+                return decision;
+            }
+
+            function getBotPersonality(botId) {
+                const personalities = [
+                    { aggression: 0.3, tightness: 0.7, bluffiness: 0.2 }, // Conservative
+                    { aggression: 0.8, tightness: 0.2, bluffiness: 0.6 }, // Aggressive
+                    { aggression: 0.5, tightness: 0.5, bluffiness: 0.3 }, // Balanced
+                    { aggression: 0.2, tightness: 0.8, bluffiness: 0.1 }, // Very tight
+                ];
+                return personalities[botId % personalities.length];
+            }
+
+            function getBotDrawStrategy(bot) {
+                const handEval = evaluateHand(bot.hand);
+                const handStrength = calculateHandStrength(bot.hand);
+
+                // Keep strong hands
+                if (handStrength >= 60) {
+                    return []; // Keep all cards
+                }
+
+                // Analyze for draws
+                const suits = {};
+                const values = {};
+                bot.hand.forEach((card) => {
+                    suits[card.suit] = (suits[card.suit] || 0) + 1;
+                    values[card.value] = (values[card.value] || 0) + 1;
+                });
+
+                // Check for flush draw
+                const flushSuit = Object.entries(suits).find(
+                    ([suit, count]) => count === 4,
+                );
+                if (flushSuit) {
+                    // Keep 4 cards of same suit, discard the odd one
+                    return bot.hand.filter(
+                        (card) => card.suit !== flushSuit[0],
+                    );
+                }
+
+                // Check for straight draw
+                const sortedValues = bot.hand
+                    .map((c) => c.value)
+                    .sort((a, b) => a - b);
+                const gaps = [];
+                for (let i = 1; i < sortedValues.length; i++) {
+                    gaps.push(sortedValues[i] - sortedValues[i - 1]);
+                }
+
+                // Open-ended straight draw
+                if (gaps.filter((g) => g === 1).length >= 3) {
+                    // Keep cards that form the sequence
+                    const sequence = [sortedValues[0]];
+                    for (let i = 1; i < sortedValues.length; i++) {
+                        if (
+                            sortedValues[i] - sequence[sequence.length - 1] <=
+                            2
+                        ) {
+                            sequence.push(sortedValues[i]);
+                        }
+                    }
+                    if (sequence.length >= 4) {
+                        return bot.hand.filter(
+                            (card) => !sequence.includes(card.value),
+                        );
+                    }
+                }
+
+                // Keep pairs and higher
+                const pairs = Object.entries(values).filter(
+                    ([val, count]) => count >= 2,
+                );
+                if (pairs.length > 0) {
+                    const keepValues = pairs.map(([val, count]) =>
+                        parseInt(val),
+                    );
+                    return bot.hand.filter(
+                        (card) => !keepValues.includes(card.value),
+                    );
+                }
+
+                // Keep high cards (J or better)
+                const highCards = bot.hand.filter((card) => card.value >= 11);
+                if (highCards.length >= 2) {
+                    const keepCards = highCards.slice(0, 2);
+                    return bot.hand.filter((card) => !keepCards.includes(card));
+                }
+
+                // Default: keep highest card, discard others
+                const highest = bot.hand.reduce((max, card) =>
+                    card.value > max.value ? card : max,
+                );
+                return bot.hand.filter((card) => card !== highest);
+            }
+
             /* ====== GAME STATE ====== */
             let G = {
                 deck: [],
-                players: [], // {id,name,isBot,hand:[],chips,active (not folded),betThisRound}
+                players: [],
                 pot: 0,
                 currentPlayerIdx: 0,
                 dealerIdx: 0,
-                stage: "idle", // 'pre', 'draw', 'post', 'showdown'
+                stage: "idle",
                 minBet: 10,
                 currentBet: 0,
                 numPlayers: 4,
@@ -413,7 +809,8 @@
                 G.pot = 0;
                 G.currentBet = G.minBet;
                 G.stage = "pre";
-                // deal 5 cards each
+
+                // Deal 5 cards each
                 for (let i = 0; i < 5; i++) {
                     for (let pi = 0; pi < G.players.length; pi++) {
                         if (G.players[pi].chips > 0) {
@@ -421,7 +818,7 @@
                         }
                     }
                 }
-                // set current player to left of dealer
+
                 G.currentPlayerIdx = (G.dealerIdx + 1) % G.players.length;
                 ui.status.textContent = "Vòng cược 1 (pre-draw)";
                 ui.pot.textContent = G.pot;
@@ -431,13 +828,21 @@
 
             function initPlayers(num, mode) {
                 G.players = [];
+                const botNames = [
+                    "🤖 Alpha",
+                    "🤖 Beta",
+                    "🤖 Gamma",
+                    "🤖 Delta",
+                ];
                 for (let i = 0; i < num; i++) {
                     const isBot =
                         (mode === "solo" && i > 0) ||
                         (mode === "local" ? false : i > 0);
                     G.players.push({
                         id: i,
-                        name: isBot ? `Bot ${i}` : `Người ${i + 1}`,
+                        name: isBot
+                            ? botNames[i - 1] || `🤖 Bot ${i}`
+                            : `👤 Người ${i + 1}`,
                         isBot,
                         hand: [],
                         chips: 500,
@@ -454,38 +859,58 @@
                 G.players.forEach((p, idx) => {
                     const div = document.createElement("div");
                     div.className = "player";
-                    if (idx === G.currentPlayerIdx)
-                        div.style.boxShadow = "0 0 0 2px rgba(79,142,247,0.15)";
-                    div.innerHTML = `<div><strong>${p.name}${p.isBot ? " 🤖" : ""}</strong> ${p.folded ? '<span style="color:#f77">[Folded]</span>' : ""}</div>
-      <div>Chips: <span class="chip">${p.chips}</span></div>
-      <div>Tay: <span style="color:var(--muted)">${p.hand.length ? "(" + p.hand.map((c) => c.rank + c.suit).join(" ") + ")" : "(rỗng)"}</span></div>
-      <div class="hand" id="hand-${idx}"></div>
-    `;
+                    if (idx === G.currentPlayerIdx) div.className += " active";
+                    if (p.folded) div.className += " folded";
+
+                    const handStrength =
+                        p.hand.length === 5 ? calculateHandStrength(p.hand) : 0;
+                    const handEval =
+                        p.hand.length === 5
+                            ? evaluateHand(p.hand)
+                            : { name: "Incomplete" };
+
+                    div.innerHTML = `
+                        <div class="player-name">${p.name}</div>
+                        <div class="player-stats">
+                            <span class="chip">${p.chips}</span>
+                            ${p.betThisRound > 0 ? `<span style="color: var(--warning)">Bet: ${p.betThisRound}</span>` : ""}
+                        </div>
+                        ${p.folded ? '<div style="color: var(--danger); font-weight: bold;">❌ FOLDED</div>' : ""}
+                        ${!p.isBot && p.hand.length === 5 ? `<div class="hand-strength">${handEval.name} (${Math.round(handStrength)}%)</div>` : ""}
+                        <div class="hand" id="hand-${idx}"></div>
+                    `;
+
                     ui.playersEl.appendChild(div);
                     const handEl = div.querySelector(`#hand-${idx}`);
+
                     p.hand.forEach((c, i) => {
                         const cdiv = document.createElement("div");
-                        cdiv.className =
-                            "card" +
-                            (!p.isBot ||
-                            G.stage !== "pre" ||
-                            idx === getHumanIndex()
-                                ? ""
-                                : " hidden");
-                        cdiv.textContent = c.rank + c.suit;
-                        if (!p.isBot || idx === getHumanIndex()) {
-                            // if human, allow select card for draw
-                            if (idx === getHumanIndex()) {
+                        const isRed = c.suit === "♥" || c.suit === "♦";
+                        cdiv.className = "card" + (isRed ? " red" : "");
+
+                        // Show cards for human players or in showdown
+                        const showCard =
+                            !p.isBot ||
+                            G.stage === "showdown" ||
+                            idx === getHumanIndex();
+
+                        if (showCard) {
+                            cdiv.textContent = c.rank + c.suit;
+                            if (idx === getHumanIndex() && G.stage === "draw") {
                                 cdiv.addEventListener("click", () => {
                                     cdiv.classList.toggle("selected");
                                     c.selected =
-                                        !!cdiv.classList.contains("selected");
+                                        cdiv.classList.contains("selected");
                                 });
                             }
+                        } else {
+                            cdiv.className += " hidden";
                         }
+
                         handEl.appendChild(cdiv);
                     });
                 });
+
                 ui.pot.textContent = G.pot;
                 ui.status.textContent =
                     {
@@ -499,14 +924,11 @@
 
             /* ====== Turn logic ====== */
             function getHumanIndex() {
-                // find first non-bot
                 return G.players.findIndex((p) => !p.isBot);
             }
 
             function proceedTurn() {
-                // Skip folded or busted players
                 if (G.stage === "pre" || G.stage === "post") {
-                    // find next active player who hasn't folded and has chips
                     let loops = 0;
                     while (
                         G.players[G.currentPlayerIdx].folded ||
@@ -516,16 +938,15 @@
                             (G.currentPlayerIdx + 1) % G.players.length;
                         if (++loops > 20) break;
                     }
+
                     const p = G.players[G.currentPlayerIdx];
                     if (p.isBot) {
-                        setTimeout(() => botAct(p), 600);
+                        setTimeout(() => improvedBotAct(p), 800);
                         return;
                     } else {
-                        // show actions for human
                         showActionsForHuman(p);
                     }
                 } else if (G.stage === "draw") {
-                    // iterate draw per player
                     handleDrawPhase();
                 }
             }
@@ -533,114 +954,104 @@
             function showActionsForHuman(p) {
                 ui.actionsArea.innerHTML = "";
                 const callAmt = Math.max(0, G.currentBet - p.betThisRound);
-                // Check
+
+                // Call/Check button
                 const btnCheck = document.createElement("button");
                 btnCheck.textContent =
-                    callAmt === 0 ? "Check" : "Call " + callAmt;
+                    callAmt === 0 ? "✅ Check" : `📞 Call ${callAmt}`;
                 btnCheck.onclick = () => {
                     if (callAmt > 0) {
-                        // call
                         const pay = Math.min(callAmt, p.chips);
                         p.chips -= pay;
                         p.betThisRound += pay;
                         G.pot += pay;
                     }
-                    // move to next
-                    G.currentPlayerIdx =
-                        (G.currentPlayerIdx + 1) % G.players.length;
-                    ui.actionsArea.innerHTML = "";
-                    render();
-                    // check if pre round finished
-                    if (isBettingRoundComplete()) {
-                        advanceStageAfterBet();
-                    } else proceedTurn();
+                    nextPlayer();
                 };
                 ui.actionsArea.appendChild(btnCheck);
 
+                // Fold button
                 const btnFold = document.createElement("button");
                 btnFold.className = "secondary";
-                btnFold.textContent = "Fold";
+                btnFold.textContent = "❌ Fold";
                 btnFold.onclick = () => {
                     p.folded = true;
-                    G.currentPlayerIdx =
-                        (G.currentPlayerIdx + 1) % G.players.length;
-                    ui.actionsArea.innerHTML = "";
-                    render();
-                    if (isBettingRoundComplete()) advanceStageAfterBet();
-                    else proceedTurn();
+                    nextPlayer();
                 };
                 ui.actionsArea.appendChild(btnFold);
 
-                // Raise
-                const btnRaise = document.createElement("button");
-                btnRaise.textContent = "Raise";
-                btnRaise.onclick = () => {
-                    const raiseAmt = G.minBet;
-                    const totalToPut = Math.min(p.chips, callAmt + raiseAmt);
-                    p.chips -= totalToPut;
-                    p.betThisRound += totalToPut;
-                    G.currentBet = p.betThisRound;
-                    G.pot += totalToPut;
-                    G.currentPlayerIdx =
-                        (G.currentPlayerIdx + 1) % G.players.length;
-                    ui.actionsArea.innerHTML = "";
-                    render();
-                    if (isBettingRoundComplete()) advanceStageAfterBet();
-                    else proceedTurn();
-                };
-                ui.actionsArea.appendChild(btnRaise);
-
-                ui.infoArea.textContent = `Cần call: ${callAmt} — Pot: ${G.pot}`;
-            }
-
-            function botAct(p) {
-                // Very simple bot: evaluate current hand strength; decide to call/raise/fold
-                const h = evaluateHand(p.hand);
-                const callAmt = Math.max(0, G.currentBet - p.betThisRound);
-                // simple logic: if strong (pair+), call or raise. if weak, sometimes fold.
-                let rnd = Math.random();
-                if (h.rank >= 2) {
-                    // two pair or better -> aggressive
-                    if (rnd < 0.6) {
-                        // raise
+                // Raise button
+                if (p.chips > callAmt) {
+                    const btnRaise = document.createElement("button");
+                    btnRaise.textContent = `⬆️ Raise ${G.minBet}`;
+                    btnRaise.style.background = "var(--warning)";
+                    btnRaise.onclick = () => {
                         const raiseAmt = Math.min(p.chips, callAmt + G.minBet);
                         p.chips -= raiseAmt;
                         p.betThisRound += raiseAmt;
-                        G.currentBet = Math.max(G.currentBet, p.betThisRound);
+                        G.currentBet = p.betThisRound;
                         G.pot += raiseAmt;
-                    } else {
-                        // call
-                        const pay = Math.min(callAmt, p.chips);
-                        p.chips -= pay;
-                        p.betThisRound += pay;
-                        G.pot += pay;
-                    }
-                } else {
-                    if (callAmt === 0) {
-                        // check
-                        // do nothing
-                    } else {
-                        // weak hand: fold with some probability
-                        if (rnd < 0.5) {
-                            p.folded = true;
-                        } else {
-                            const pay = Math.min(callAmt, p.chips);
-                            p.chips -= pay;
-                            p.betThisRound += pay;
-                            G.pot += pay;
-                        }
-                    }
+                        nextPlayer();
+                    };
+                    ui.actionsArea.appendChild(btnRaise);
                 }
-                // advance player
+
+                ui.infoArea.innerHTML = `<div class="bet-info">💰 Cần call: ${callAmt} | 🎯 Pot: ${G.pot}</div>`;
+            }
+
+            function nextPlayer() {
                 G.currentPlayerIdx =
                     (G.currentPlayerIdx + 1) % G.players.length;
+                ui.actionsArea.innerHTML = "";
                 render();
-                if (isBettingRoundComplete()) advanceStageAfterBet();
-                else proceedTurn();
+                if (isBettingRoundComplete()) {
+                    advanceStageAfterBet();
+                } else {
+                    proceedTurn();
+                }
+            }
+
+            function improvedBotAct(p) {
+                const decision = getBotDecision(p, G);
+                const callAmt = Math.max(0, G.currentBet - p.betThisRound);
+
+                // Show bot thinking
+                ui.infoArea.textContent = `${p.name} đang suy nghĩ...`;
+
+                setTimeout(() => {
+                    switch (decision.action) {
+                        case "fold":
+                            p.folded = true;
+                            ui.infoArea.textContent = `${p.name} fold.`;
+                            break;
+                        case "check":
+                            ui.infoArea.textContent = `${p.name} check.`;
+                            break;
+                        case "call":
+                            const payCall = Math.min(decision.amount, p.chips);
+                            p.chips -= payCall;
+                            p.betThisRound += payCall;
+                            G.pot += payCall;
+                            ui.infoArea.textContent = `${p.name} call ${payCall}.`;
+                            break;
+                        case "raise":
+                            const payRaise = Math.min(decision.amount, p.chips);
+                            p.chips -= payRaise;
+                            p.betThisRound += payRaise;
+                            G.currentBet = Math.max(
+                                G.currentBet,
+                                p.betThisRound,
+                            );
+                            G.pot += payRaise;
+                            ui.infoArea.textContent = `${p.name} raise to ${p.betThisRound}!`;
+                            break;
+                    }
+
+                    nextPlayer();
+                }, 500);
             }
 
             function isBettingRoundComplete() {
-                // If all active players have betThisRound equal to currentBet or are folded or bust
                 for (const p of G.players) {
                     if (p.folded || p.chips <= 0) continue;
                     if (p.betThisRound !== G.currentBet) return false;
@@ -649,12 +1060,11 @@
             }
 
             function advanceStageAfterBet() {
-                // reset players' betThisRound to 0 for next round; move stage
                 for (const p of G.players) p.betThisRound = 0;
+
                 if (G.stage === "pre") {
                     G.stage = "draw";
                     ui.status.textContent = "Vòng rút bài";
-                    // start draw sequence from left of dealer
                     G.currentPlayerIdx = (G.dealerIdx + 1) % G.players.length;
                     render();
                     proceedTurn();
@@ -667,196 +1077,193 @@
             }
 
             function handleDrawPhase() {
-                // For draw phase: iterate players, let them select up to 3 to replace
                 const p = G.players[G.currentPlayerIdx];
+
                 if (p.folded || p.chips <= 0) {
                     G.currentPlayerIdx =
                         (G.currentPlayerIdx + 1) % G.players.length;
-                    // check if all done
                     if (
                         G.currentPlayerIdx ===
                         (G.dealerIdx + 1) % G.players.length
                     ) {
-                        // done draws -> go to post-draw betting
-                        G.stage = "post";
-                        G.currentBet = G.minBet;
-                        G.currentPlayerIdx =
-                            (G.dealerIdx + 1) % G.players.length;
-                        ui.status.textContent = "Vòng cược 2 (post-draw)";
-                        render();
-                        proceedTurn();
+                        startPostDrawBetting();
                         return;
                     } else {
                         handleDrawPhase();
                         return;
                     }
                 }
+
                 if (p.isBot) {
-                    // simple bot draw strategy: keep pairs or better, discard others up to 3
-                    const counts = {};
-                    p.hand.forEach(
-                        (c) => (counts[c.value] = (counts[c.value] || 0) + 1),
-                    );
-                    const keepVals = Object.entries(counts)
-                        .filter(([v, c]) => c >= 2)
-                        .map((x) => +x[0]);
-                    let toReplace = [];
-                    for (const c of p.hand) {
-                        if (keepVals.includes(c.value)) continue;
-                        toReplace.push(c);
-                    }
-                    // limit to 3
-                    toReplace = toReplace.slice(0, 3);
-                    for (const r of toReplace) {
-                        // replace card r
-                        const idx = p.hand.indexOf(r);
-                        if (idx >= 0 && G.deck.length > 0)
-                            p.hand[idx] = G.deck.pop();
-                    }
-                    // next player
-                    G.currentPlayerIdx =
-                        (G.currentPlayerIdx + 1) % G.players.length;
-                    // check completed
-                    if (
-                        G.currentPlayerIdx ===
-                        (G.dealerIdx + 1) % G.players.length
-                    ) {
-                        // finished
-                        G.stage = "post";
-                        G.currentBet = G.minBet;
+                    ui.infoArea.textContent = `${p.name} đang rút bài...`;
+                    setTimeout(() => {
+                        const toReplace = getBotDrawStrategy(p);
+                        const replaceCount = Math.min(toReplace.length, 3);
+
+                        for (let i = 0; i < replaceCount; i++) {
+                            const idx = p.hand.indexOf(toReplace[i]);
+                            if (idx >= 0 && G.deck.length > 0) {
+                                p.hand[idx] = G.deck.pop();
+                            }
+                        }
+
+                        ui.infoArea.textContent = `${p.name} rút ${replaceCount} lá.`;
+
                         G.currentPlayerIdx =
-                            (G.dealerIdx + 1) % G.players.length;
-                        ui.status.textContent = "Vòng cược 2 (post-draw)";
-                        render();
-                        proceedTurn();
-                        return;
-                    } else {
-                        handleDrawPhase();
-                        render();
-                        return;
-                    }
+                            (G.currentPlayerIdx + 1) % G.players.length;
+                        if (
+                            G.currentPlayerIdx ===
+                            (G.dealerIdx + 1) % G.players.length
+                        ) {
+                            setTimeout(startPostDrawBetting, 1000);
+                        } else {
+                            setTimeout(() => {
+                                handleDrawPhase();
+                                render();
+                            }, 800);
+                        }
+                    }, 600);
                 } else {
-                    // human draw: allow selecting cards and pressing "Draw Selected"
+                    // Human draw interface
                     ui.actionsArea.innerHTML = "";
+
                     const drawBtn = document.createElement("button");
-                    drawBtn.textContent = "Rút lá đã chọn (tối đa 3)";
+                    drawBtn.textContent = "🎴 Rút lá đã chọn (tối đa 3)";
                     drawBtn.onclick = () => {
-                        // replace selected card(s)
                         const sel = p.hand.filter((c) => c.selected);
                         if (sel.length > 3) {
                             ui.infoArea.textContent =
-                                "Không được vượt quá 3 lá";
+                                "❌ Không được vượt quá 3 lá!";
                             return;
                         }
+
                         for (const r of sel) {
                             const idx = p.hand.indexOf(r);
-                            if (idx >= 0 && G.deck.length > 0)
+                            if (idx >= 0 && G.deck.length > 0) {
                                 p.hand[idx] = G.deck.pop();
+                            }
                         }
-                        // clear selections
-                        p.hand.forEach((c) => {
-                            delete c.selected;
-                        });
-                        // next player
+
+                        p.hand.forEach((c) => delete c.selected);
+                        ui.infoArea.textContent = `Bạn đã rút ${sel.length} lá.`;
+
                         G.currentPlayerIdx =
                             (G.currentPlayerIdx + 1) % G.players.length;
                         ui.actionsArea.innerHTML = "";
                         render();
-                        // check if finished draws
+
                         if (
                             G.currentPlayerIdx ===
                             (G.dealerIdx + 1) % G.players.length
                         ) {
-                            G.stage = "post";
-                            G.currentBet = G.minBet;
-                            G.currentPlayerIdx =
-                                (G.dealerIdx + 1) % G.players.length;
-                            ui.status.textContent = "Vòng cược 2 (post-draw)";
-                            render();
-                            proceedTurn();
-                            return;
-                        } else handleDrawPhase();
+                            setTimeout(startPostDrawBetting, 1000);
+                        } else {
+                            handleDrawPhase();
+                        }
                     };
                     ui.actionsArea.appendChild(drawBtn);
+
                     const skipBtn = document.createElement("button");
                     skipBtn.className = "secondary";
-                    skipBtn.textContent = "Không rút";
+                    skipBtn.textContent = "⏭️ Không rút";
                     skipBtn.onclick = () => {
-                        // clear selected and move on
-                        p.hand.forEach((c) => {
-                            delete c.selected;
-                        });
+                        p.hand.forEach((c) => delete c.selected);
                         G.currentPlayerIdx =
                             (G.currentPlayerIdx + 1) % G.players.length;
                         ui.actionsArea.innerHTML = "";
                         render();
+
                         if (
                             G.currentPlayerIdx ===
                             (G.dealerIdx + 1) % G.players.length
                         ) {
-                            G.stage = "post";
-                            G.currentBet = G.minBet;
-                            G.currentPlayerIdx =
-                                (G.dealerIdx + 1) % G.players.length;
-                            ui.status.textContent = "Vòng cược 2 (post-draw)";
-                            render();
-                            proceedTurn();
-                            return;
-                        } else handleDrawPhase();
+                            setTimeout(startPostDrawBetting, 1000);
+                        } else {
+                            handleDrawPhase();
+                        }
                     };
                     ui.actionsArea.appendChild(skipBtn);
-                    ui.infoArea.textContent =
-                        'Chọn tối đa 3 lá (click lá để chọn), sau đó nhấn "Rút"';
+
+                    ui.infoArea.innerHTML = `<div class="bet-info">🎯 Chọn tối đa 3 lá để rút (click vào lá bài để chọn)</div>`;
                     render();
                 }
             }
 
+            function startPostDrawBetting() {
+                G.stage = "post";
+                G.currentBet = G.minBet;
+                G.currentPlayerIdx = (G.dealerIdx + 1) % G.players.length;
+                ui.status.textContent = "Vòng cược 2 (post-draw)";
+                render();
+                proceedTurn();
+            }
+
             function doShowdown() {
-                // find not-folded players
                 const contenders = G.players.filter(
                     (p) => !p.folded && p.hand.length === 5,
                 );
+
                 if (contenders.length === 0) {
                     ui.infoArea.textContent =
-                        "Không còn người chơi: pot giữ lại (edge case).";
+                        "🚫 Không còn người chơi: pot giữ lại.";
                     return;
                 }
-                // evaluate each
+
                 const evals = contenders.map((p) => ({
                     p,
                     eval: evaluateHand(p.hand),
                 }));
-                // find winner(s)
-                let best = evals[0];
+
+                // Find winner(s)
+                let winners = [evals[0]];
                 for (let i = 1; i < evals.length; i++) {
-                    const cmp = compareHands(evals[i].eval, best.eval);
-                    if (cmp > 0) best = evals[i];
-                    else if (cmp === 0) {
-                        // tie: keep both winners for split pot
-                        if (!best.tied) best.tied = [best];
-                        if (!best.tied.includes(evals[i])) {
-                            if (!Array.isArray(best.tied)) best.tied = [best];
-                            best.tied.push(evals[i]);
-                        }
+                    const cmp = compareHands(evals[i].eval, winners[0].eval);
+                    if (cmp > 0) {
+                        winners = [evals[i]];
+                    } else if (cmp === 0) {
+                        winners.push(evals[i]);
                     }
                 }
-                // collect winners
-                let winners = [];
-                if (best.tied && best.tied.length) {
-                    winners = best.tied.map((x) => x.p);
-                } else {
-                    winners = [best.p];
-                }
-                // share pot equally
+
+                // Award pot
                 const share = Math.floor(G.pot / winners.length);
-                winners.forEach((w) => (w.chips += share));
-                ui.infoArea.textContent = `Kết quả: ${winners.map((w) => w.name).join(", ")} thắng (${evaluateHand(winners[0].hand).name}). Mỗi người nhận ${share}.`;
+                winners.forEach((w) => {
+                    w.p.chips += share;
+                    // Add winner highlight
+                    const playerEl = document.querySelector(
+                        `.player:nth-child(${G.players.indexOf(w.p) + 1})`,
+                    );
+                    if (playerEl) playerEl.classList.add("winner-highlight");
+                });
+
+                const winnerNames = winners.map((w) => w.p.name).join(", ");
+                const handName = winners[0].eval.name;
+
+                ui.infoArea.innerHTML = `
+                    <div class="bet-info" style="background: rgba(16, 185, 129, 0.2); border-color: var(--success);">
+                        🏆 <strong>${winnerNames}</strong> thắng với <strong>${handName}</strong>!<br>
+                        💰 Mỗi người nhận: ${share} chips
+                    </div>
+                `;
+
                 G.pot = 0;
                 ui.pot.textContent = "0";
                 render();
-                // next: prepare next round (dealer move)
-                G.dealerIdx = (G.dealerIdx + 1) % G.players.length;
-                G.stage = "idle";
+
+                // Prepare next round
+                setTimeout(() => {
+                    // Remove winner highlight
+                    document
+                        .querySelectorAll(".winner-highlight")
+                        .forEach((el) => {
+                            el.classList.remove("winner-highlight");
+                        });
+
+                    G.dealerIdx = (G.dealerIdx + 1) % G.players.length;
+                    G.stage = "idle";
+                    ui.infoArea.textContent =
+                        '🎲 Nhấn "Chia bài" để chơi ván tiếp theo.';
+                }, 4000);
             }
 
             /* ====== Buttons ====== */
@@ -867,23 +1274,25 @@
                 resetGame();
                 initPlayers(num, mode);
                 ui.infoArea.textContent =
-                    'Game created. Nhấn "Chia bài" để bắt đầu ván.';
+                    '🎮 Game created! Nhấn "Chia bài" để bắt đầu ván.';
                 render();
             };
+
             ui.dealBtn.onclick = () => {
                 if (G.players.length === 0) {
-                    ui.infoArea.textContent = 'Nhấn "Bắt đầu ván mới" trước.';
+                    ui.infoArea.textContent =
+                        '⚠️ Nhấn "Bắt đầu ván mới" trước!';
                     return;
                 }
                 startNewRound();
             };
 
-            /* ====== init demo ====== */
+            /* ====== Initialize ====== */
             resetGame();
             initPlayers(4, "solo");
             render();
             ui.infoArea.textContent =
-                'Chọn số người và nhấn "Bắt đầu ván mới" rồi "Chia bài".';
+                '🎯 Chọn số người và nhấn "Bắt đầu ván mới" rồi "Chia bài" để chơi!';
         </script>
     </body>
 </html>
